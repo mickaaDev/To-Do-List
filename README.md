@@ -1,4 +1,4 @@
-### FastAPI Project
+# FastAPI Project
 This is a FastAPI-based web application for managing users and tasks. It provides a RESTful API for creating, reading, updating, and deleting users and tasks.
 
 ## Features
@@ -13,47 +13,47 @@ Python 3.7 or higher
 SQLite (or another database of your choice)
 Virtual environment (recommended)
 ## Setup
-# Clone the repository:
+## Clone the repository:
 
 ```bash
 git clone https://github.com/mickaaDev/To-Do-List.git
 cd <repository-directory>
 ```
 
-# Create and activate a virtual environment:
+## Create and activate a virtual environment:
 
 ```bash
 python3 -m venv venv
 source venv/bin/activate  # On Windows use `venv\Scripts\activate`
 ```
 
-# Install dependencies:
+## Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
-# Run database migrations (if any):
+## Run database migrations (if any):
 
 For SQLite, the database file will be created automatically.
-# Start the application:
+## Start the application:
 
 ```bash
 uvicorn api.main:app --reload
 ```
-# Access the API documentation:
+## Access the API documentation:
 
 Open your browser and go to http://127.0.0.1:8000/docs for the Swagger UI or http://127.0.0.1:8000/redoc for ReDoc.
 
 
 ## API Endpoints
-# Authentication
+## Authentication
 POST /token: Obtain a JWT token for authentication.
-# Users
+## Users
 POST /users/: Create a new user.
 GET /users/: Get a list of all users.
 GET /users/{user_id}: Get details of a specific user.
 DELETE /users/{user_id}: Delete a user.
-# Tasks
+## Tasks
 POST /users/{user_id}/items/: Create a task for a specific user.
 GET /tasks/: Get a list of all tasks.
 DELETE /tasks/{task_id}: Delete a task.
