@@ -113,3 +113,8 @@ __pypackages__/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+__pycache__
+__init__
+*__init__
+*__pycache__
+sql_app.db
