@@ -71,6 +71,8 @@ This project has not been licensed yet.
 
 ## Acknowledgements
 [FastAPI](https://fastapi.tiangolo.com/)
+
 [SQLAlchemy](https://www.sqlalchemy.org/)
+
 [Uvicorn](https://www.uvicorn.org/)
 
