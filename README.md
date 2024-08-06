@@ -50,12 +50,17 @@ Open your browser and go to http://127.0.0.1:8000/docs for the Swagger UI or htt
 POST /token: Obtain a JWT token for authentication.
 ## Users
 POST /users/: Create a new user.
+
 GET /users/: Get a list of all users.
+
 GET /users/{user_id}: Get details of a specific user.
+
 DELETE /users/{user_id}: Delete a user.
 ## Tasks
 POST /users/{user_id}/items/: Create a task for a specific user.
+
 GET /tasks/: Get a list of all tasks.
+
 DELETE /tasks/{task_id}: Delete a task.
 
 ## Contributing
