@@ -56,6 +56,20 @@ def create_task(db: Session, task: schemas.TaskCreate, user_id: int):
     db.refresh(db_task)
     return db_task
 
+def update_task(db: Session, task_id: schemas.Task, user ,task_update: schemas.Task,):
+    task = get_task(db, task_id=task_id)
+    if not task:
+        return HTTPException(status_code=400, detail="Task does not exists")
+    if task_update.title:
+        task.title = task_update.title
+    if task_update.description:
+        task.description = task_update.description
+    if task_update.completed is not None:
+        task.completed = task_update.completed
+    task.owner_id = user.id
+    db.commit()
+    return task
+
 def remove_user(db: Session, user_id: int):
     db_user = get_user(db, user_id=user_id)
     if db_user:

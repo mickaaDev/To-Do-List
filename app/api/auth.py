@@ -38,7 +38,7 @@ def get_password_hashed(password):
     return pwd_context.hash(password)
 
 def authenticate_user(db: Session, username: str, password: str):
-    from ..db.crud import get_user_by_username  # Moved import here
+    from ..db.crud import get_user_by_username 
     user = get_user_by_username(db, username=username)
     if not user:
         return False

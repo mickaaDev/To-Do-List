@@ -107,3 +107,20 @@ async def read_user_me(
     current_user: Annotated[User, Depends(get_current_active_user)]
 ):
     return current_user
+
+
+@app.patch("/update_task/{task_id}/")
+async def update_task(
+    task_id: int, 
+    task_update: schemas.Task, 
+    user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    task = crud.update_task(
+        task_id=task_id,
+        db=db,
+        user=user,
+        task_update=task_update
+    )
+    return {"detail":"Task was updated successfully!"}
+
