@@ -1,14 +1,15 @@
 from typing import Annotated
 from datetime import datetime, timezone, timedelta
 
+import os
 import jwt
 from fastapi import Depends, HTTPException, status
-from fastapi.security import  OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from jwt.exceptions import InvalidTokenError
 from sqlalchemy.orm import Session
 
-from ..utils.dependencies import get_db  
+from ..utils.dependencies import get_db
 from ..db.schemas import TokenData, User
 
 
@@ -16,7 +17,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-SECRET_KEY = ""
+SECRET_KEY = os.getenv("SECRET_KEY", "default_secret_key")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -31,14 +32,17 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encode_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encode_jwt
 
+
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
+
 
 def get_password_hashed(password):
     return pwd_context.hash(password)
 
+
 def authenticate_user(db: Session, username: str, password: str):
-    from ..db.crud import get_user_by_username 
+    from ..db.crud import get_user_by_username
     user = get_user_by_username(db, username=username)
     if not user:
         return False
@@ -69,7 +73,6 @@ async def get_current_user(
     if user is None:
         raise credentials_exception
     return user
-
 
 
 async def get_current_active_user(

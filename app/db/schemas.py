@@ -1,11 +1,13 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional
+
 
 class TaskBase(BaseModel):
     id: int
     title: str
     description: Optional[str] = None
+
 
 class Task(TaskBase):
     created: datetime
@@ -13,17 +15,21 @@ class Task(TaskBase):
     owner_id: int
 
     class Config:
-        orm_mode = True 
+        orm_mode = True
+
 
 class TaskCreate(TaskBase):
     owner_id: int
 
+
 class UserBase(BaseModel):
     pass
+
 
 class UserCreate(UserBase):
     username: str
     password: str
+
 
 class User(UserBase):
     id: int
@@ -33,11 +39,13 @@ class User(UserBase):
     tasks: list[Task] = []
 
     class Config:
-        orm_mode = True 
+        orm_mode = True
+
 
 class Token(BaseModel):
     access_token: str
     token_type: str
+
 
 class TokenData(BaseModel):
     username: str | None = None
