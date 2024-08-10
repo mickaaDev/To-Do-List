@@ -1,25 +1,25 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional
 
 
 class TaskBase(BaseModel):
     id: int
-    title: str
-    description: Optional[str] = None
 
 
 class Task(TaskBase):
+    title: str
+    description: str
     created: datetime
-    completed: bool = False
     owner_id: int
 
     class Config:
         orm_mode = True
 
 
-class TaskCreate(TaskBase):
-    owner_id: int
+class TaskCreate(BaseModel):
+    title: str
+    description: str
+    complete: bool
 
 
 class UserBase(BaseModel):

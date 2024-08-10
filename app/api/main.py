@@ -56,7 +56,7 @@ def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return users
 
 
-@app.get("/users/{user_id}", response_model=schemas.User)
+@app.get("/user/{user_id}", response_model=schemas.User)
 def read_user(user_id: int, db: Session = Depends(get_db)):
     db_user = crud.get_user(db, user_id=user_id)
     if db_user is None:
@@ -99,7 +99,7 @@ def delete_task(
     db_task = crud.get_task(db, task_id=task_id)
     if db_task:
         crud.remove_task(db, task_id=task_id)
-        return {"detailed": "Task was deleted"}
+        return {"detail": "Task was deleted"}
     return HTTPException(
         status_code=400,
         detail="Task does not exist in DB.",
@@ -126,7 +126,7 @@ async def login_for_access_token(
     return Token(access_token=access_token, token_type='bearer')
 
 
-@app.get("/user/me")
+@app.get("/user/me/")
 async def read_user_me(
     current_user: Annotated[User, Depends(get_current_active_user)]
 ):
