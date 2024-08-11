@@ -19,7 +19,7 @@ class Task(TaskBase):
 class TaskCreate(BaseModel):
     title: str
     description: str
-    complete: bool
+    completed: bool | None = False
 
 
 class UserBase(BaseModel):

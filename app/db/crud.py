@@ -11,10 +11,6 @@ def get_user(db: Session, user_id: int):
     return db.query(models.User).filter(models.User.id == user_id).first()
 
 
-def get_user_by_email(db: Session, email: str):
-    return db.query(models.User).filter(models.User.email == email).first()
-
-
 def get_user_by_username(db: Session, username: str):
     return db.query(models.User).filter(
         models.User.username == username
@@ -44,6 +40,10 @@ def remove_task(db: Session, task_id: int):
 
 
 def create_user(db: Session, user: schemas.UserCreate):
+    if user.username == "":
+        raise HTTPException(status_code=404, detail="username cannot be empty")
+    if user.password == "":
+        raise HTTPException(status_code=404, detail="Password cannot be empty")
     hashed_password = get_password_hashed(user.password)
     db_user = models.User(
         username=user.username,
@@ -72,7 +72,7 @@ def create_task(db: Session, task: schemas.TaskCreate, user_id: int):
 def update_task(
         db: Session,
         task_id: schemas.Task,
-        user, task_update: schemas.Task
+        task_update: schemas.Task
 ):
     task = get_task(db, task_id=task_id)
     if not task:
@@ -83,9 +83,20 @@ def update_task(
         task.description = task_update.description
     if task_update.completed is not None:
         task.completed = task_update.completed
-    task.owner_id = user.id
     db.commit()
     return task
+
+
+def task_belongs_user(
+    db: Session,
+    task_id: int,
+    user: schemas.User
+):
+
+    task = db.query(models.Task).filter(models.Task.id == task_id).first()
+    if task is None:
+        return False
+    return task.owner_id == user.id
 
 
 def remove_user(db: Session, user_id: int):

@@ -77,11 +77,32 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     )
 
 
-@app.post("/users/{user_id}/items/", response_model=schemas.Task)
-def create_item_for_user(
-    user_id: int, task: schemas.TaskCreate, db: Session = Depends(get_db)
+@app.patch("/task/{task_id}/", response_model=schemas.Task)
+def update_task(
+    task_id: int,
+    task_update: schemas.TaskCreate,
+    user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
 ):
-    return crud.create_task(db=db, task=task, user_id=user_id)
+    if not crud.task_belongs_user(db=db, task_id=task_id, user=user):
+        raise HTTPException(
+            status_code=404,
+            detail="This task does not belongs to the current user"
+        )
+    task = crud.update_task(db, task_id=task_id, task_update=task_update)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Unsuccessful update.")
+
+    return task
+
+
+@app.post("/users/task/", response_model=schemas.Task)
+def create_task_for_user(
+    task: schemas.TaskCreate,
+    user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    return crud.create_task(db=db, task=task, user_id=user.id)
 
 
 @app.get("/tasks/", response_model=list[schemas.Task])
