@@ -19,35 +19,40 @@ def generate_random_string(length=8):
     )
 
 
-test_tmp_user_id = 0
-test_tmp_task_id = 0
-test_token = ""
 username_v1 = os.getenv('test_user_username')
 password_v1 = os.getenv('test_user_password')
-username = ""
-password = ""
 
 
 class TestUserManagement:
+
+    test_tmp_user_id = 0
+    test_tmp_task_id = 0
+    test_token = ""
+    username = ""
+    password = ""
+
+    @classmethod
+    def setup_class(self):
+        if not self.username:
+            self.username = generate_random_string()
+        if not self.password:
+            self.password = generate_random_string()
+
     def test_sign_up(self):
-        global username
-        global password
-        global test_tmp_user_id
-        username = generate_random_string()
-        password = generate_random_string()
+
         response = client.post(
             "/users/",
-            json={"username": username, "password": password}
+            json={"username": self.username, "password": self.password}
         )
         assert response.status_code == 200
         assert response.json() == {
-            "username": username,
+            "username": self.username,
             "disabled": False,
             "full_name": None,
             "id": response.json().get("id"),
             "tasks": []
         }
-        test_tmp_user_id = response.json().get("id")
+        self.__class__.test_tmp_user_id = response.json().get("id")
 
     def test_read_users(self):
         response = client.get("/users/")
@@ -65,11 +70,11 @@ class TestUserManagement:
             assert "disabled" in user and isinstance(user["disabled"], bool)
 
     def test_read_user(self):
-        response = client.get(f"/user/{test_tmp_user_id}")
+        response = client.get(f"/user/{self.__class__.test_tmp_user_id}")
 
         assert response.status_code == 200
         assert response.json() == {
-            "username": username,
+            "username": self.__class__.username,
             "disabled": False,
             "full_name": None,
             "id": response.json().get("id"),
@@ -84,15 +89,16 @@ class TestUserManagement:
     def test_login_for_access_token(self):
         response = client.post(
             "/token",
-            data={"username": username, "password": password}
+            data={
+                "username": self.__class__.username,
+                "password": self.__class__.password
+            }
         )
-
-        global test_token
 
         assert response.status_code == 200
         assert response.json().get("token_type") == "bearer"
         assert isinstance(response.json().get("access_token"), str)
-        test_token = response.json().get("access_token")
+        self.__class__.test_token = response.json().get("access_token")
 
         response_v2 = client.post(
             "/token",
@@ -105,7 +111,7 @@ class TestUserManagement:
         ) == "Incorrect username or password"
 
     def test_create_task_for_user(self):
-        global test_tmp_task_id
+
         response = client.post(
             "/users/task/",
             json={
@@ -114,7 +120,7 @@ class TestUserManagement:
                 "complete": False
             },
             headers={
-                'Authorization': f"Bearer {test_token}"
+                'Authorization': f"Bearer {self.__class__.test_token}"
             }
         )
         assert response.status_code == 200
@@ -123,15 +129,15 @@ class TestUserManagement:
                 "title": response.json()['title'],
                 "description": response.json()["description"],
                 "created": response.json()['created'],
-                "owner_id": test_tmp_user_id
+                "owner_id": self.__class__.test_tmp_user_id
         }
-        test_tmp_task_id = response.json().get("id")
+        self.__class__.test_tmp_user_id = response.json().get("id")
 
     def test_read_user_me(self):
         response = client.get(
             "/user/me/",
             headers={
-                'Authorization': f"Bearer {test_token}"
+                'Authorization': f"Bearer {self.__class__.test_token}"
             }
         )
 
@@ -141,11 +147,67 @@ class TestUserManagement:
         assert isinstance(response.json(), dict)
         assert isinstance(response.json().get("username"), str)
 
+    def test_update_task(self):
+        response = client.patch(
+            f"/task/{self.__class__.test_tmp_user_id}",
+            json={
+                "title": "Updated Title",
+                "description": "Updated description",
+                "complete": True
+            },
+            headers={
+                'Authorization': f"Bearer {self.__class__.test_token}"
+            }
+        )
+        assert response.status_code == 200
+        assert response.json().get("id") == self.__class__.test_tmp_user_id
+        assert response.json().get("title") == "Updated Title"
+        assert response.json().get("description") == "Updated description"
+
+        tmp_task_id = response.json().get("id")
+
+        update_response = client.patch(
+            f"/task/{tmp_task_id}",
+            json={
+                "title": "Another Test Update Title",
+                "description": "Another Test Update Update description",
+                "complete": False
+            },
+            headers={
+                'Authorization': f"Bearer {self.__class__.test_token}"
+            }
+        )
+
+        assert update_response.status_code == 200
+        assert update_response.json().get(
+            "title"
+        ) == "Another Test Update Title"
+        assert update_response.json().get(
+            "description"
+        ) == "Another Test Update Update description"
+
+        response_v2 = client.patch(
+            f"/task/{10000000}",
+            json={
+                "title": "Updated Title",
+                "description": "Updated description",
+                "complete": True
+            },
+
+            headers={
+                'Authorization': f"Bearer {self.__class__.test_token}"
+                    }
+        )
+        assert response_v2.status_code == 404
+        assert response_v2.json() == {
+            'detail': 'This task does not belongs to the current user'
+        }
+
     def test_delete_task(self):
         response = client.delete(
-            f"/tasks/{test_tmp_task_id}",
+            f"/tasks/{self.__class__.test_tmp_user_id}",
             headers={
-                'Authorization': f"Bearer {test_token}"
+                'Authorization': f"Bearer {self.__class__.test_token}"
             }
         )
         assert response.status_code == 200
@@ -154,7 +216,7 @@ class TestUserManagement:
         response_v2 = client.delete(
             f"/tasks/{0}",
             headers={
-                'Authorization': f"Bearer {test_token}"
+                'Authorization': f"Bearer {self.__class__.test_token}"
             }
         )
 
@@ -163,14 +225,14 @@ class TestUserManagement:
 
     def test_delete_user(self):
         response = client.delete(
-            f"/users/{test_tmp_user_id}",
+            f"/users/{self.__class__.test_tmp_user_id}",
         )
 
         assert response.status_code == 200
         assert response.json() == {"detail": "User deleted successfully!"}
 
         response_v2 = client.delete(
-            f"/users/{test_tmp_user_id}",
+            f"/users/{self.__class__.test_tmp_user_id}",
         )
         assert response_v2.status_code == 200
         assert response_v2.json().get("detail") == "User does not exist in DB."
