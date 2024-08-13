@@ -106,7 +106,11 @@ def create_task_for_user(
 
 
 @app.get("/tasks/", response_model=list[schemas.Task])
-def read_tasks(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+async def read_tasks(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db)
+):
     tasks = crud.get_tasks(db, skip=skip, limit=limit)
     return tasks
 

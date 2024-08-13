@@ -17,6 +17,7 @@ class Task(TaskBase):
 
 
 class TaskCreate(BaseModel):
+    owner_id: int
     title: str
     description: str
     completed: bool | None = False

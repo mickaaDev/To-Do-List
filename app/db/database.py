@@ -5,9 +5,10 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 
 load_dotenv()
 
-SQLALCHEMY_DATABASE_URL = f"postgresql://postgres:{os.getenv('postgressql_password')}@{os.getenv('postgressql_server')}/todolist"
-# SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
-
+SQLALCHEMY_DATABASE_URL = (
+    f"postgresql://postgres:{os.getenv('postgressql_password')}"
+    f"@{os.getenv('postgressql_server')}/todolist"
+)
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL
