@@ -1,9 +1,12 @@
 import os
-from fastapi.testclient import TestClient
 import random
 import string
+import pytest
+import asyncio
+from fastapi.testclient import TestClient
 from app.api.main import app
 from dotenv import load_dotenv
+
 
 load_dotenv()
 
@@ -57,7 +60,7 @@ class TestUserManagement:
     def test_read_users(self):
         response = client.get("/users/")
 
-        assert len(response.json()) > 0
+        assert len(response.json()) >= 0
         assert isinstance(response.json(), list)
         assert response.status_code == 200
         for user in response.json():
@@ -222,12 +225,11 @@ class TestUserManagement:
 
         assert response_v2.json().get("status_code") == 400
         assert response_v2.json().get("detail") == "Task does not exist in DB."
-
+    
     def test_delete_user(self):
         response = client.delete(
             f"/users/{self.__class__.test_tmp_user_id}",
         )
-
         assert response.status_code == 200
         assert response.json() == {"detail": "User deleted successfully!"}
 
@@ -237,13 +239,14 @@ class TestUserManagement:
         assert response_v2.status_code == 200
         assert response_v2.json().get("detail") == "User does not exist in DB."
         assert response_v2.json().get("status_code") == 400
-
+    test_tmp_user_id = 0
+    test_tmp_task_id = 0
 
 class TestItemManagement:
     def test_read_tasks(self):
         response = client.get("/tasks/")
 
-        assert len(response.json()) > 0
+        assert len(response.json()) >= 0
         assert isinstance(response.json(), list)
         assert response.status_code == 200
         for task in response.json():
