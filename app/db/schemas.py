@@ -1,8 +1,9 @@
 from pydantic import BaseModel
 from datetime import datetime
+from sqlmodel import SQLModel, Field
 
 
-class TaskBase(BaseModel):
+class TaskBase(SQLModel):
     id: int
 
 
@@ -16,14 +17,14 @@ class Task(TaskBase):
         orm_mode = True
 
 
-class TaskCreate(BaseModel):
+class TaskCreate(SQLModel):
     owner_id: int
     title: str
     description: str
     completed: bool | None = False
 
 
-class UserBase(BaseModel):
+class UserBase(SQLModel):
     pass
 
 
@@ -43,10 +44,10 @@ class User(UserBase):
         orm_mode = True
 
 
-class Token(BaseModel):
+class Token(SQLModel):
     access_token: str
     token_type: str
 
 
-class TokenData(BaseModel):
+class TokenData(SQLModel):
     username: str | None = None

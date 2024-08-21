@@ -7,12 +7,11 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from datetime import timedelta
 
 from ..db import models
-
 from ..db import crud
 
 from ..utils.dependencies import get_db
 from ..db import schemas
-from ..db.database import engine
+from ..db.database import engine, init_db
 from ..db.schemas import Token, User
 from .auth import (
     authenticate_user,
@@ -20,6 +19,7 @@ from .auth import (
     create_access_token,
     get_current_active_user
 )
+
 
 
 logging.basicConfig(
@@ -52,6 +52,10 @@ app.add_middleware(
 
 models.Base.metadata.create_all(bind=engine)
 
+
+@app.on_event("startup")
+def on_startup():
+    init_db()
 
 @app.post("/users/", response_model=schemas.User)
 def sign_up(user: schemas.UserCreate, db: Session = Depends(get_db)):
@@ -89,7 +93,7 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
         status_code=400,
         detail="User does not exist in DB.",
         headers={"X-Error": "There goes my error"}
-    )
+    ) 
 
 
 @app.patch("/task/{task_id}/", response_model=schemas.Task)
@@ -158,6 +162,7 @@ async def login_for_access_token(
 ):
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
+        logger.info(f"Some user could not sign in. Error message: Incorrect username or password . Status code 400.")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
