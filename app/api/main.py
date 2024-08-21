@@ -1,3 +1,4 @@
+import logging
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -19,6 +20,16 @@ from .auth import (
     create_access_token,
     get_current_active_user
 )
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    filename="app.log",
+    filemode="a",
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -47,6 +58,8 @@ def sign_up(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_username(db, username=user.username)
     if db_user:
         raise HTTPException(status_code=400, detail="User already registered")
+
+    logger.info(f"User is signed up '{user.username}'.")
     return crud.create_user(db=db, user=user)
 
 
@@ -66,9 +79,11 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
 
 @app.delete("/users/{user_id}")
 def delete_user(user_id: int, db: Session = Depends(get_db)):
+
     db_user = crud.get_user(db, user_id=user_id)
     if db_user:
         crud.remove_user(db, user_id=user_id)
+        logger.info(f"User '{db_user.username}' was deleted from DB.")
         return {"detail": "User deleted successfully!"}
     return HTTPException(
         status_code=400,
@@ -90,6 +105,7 @@ def update_task(
             detail="This task does not belongs to the current user"
         )
     task = crud.update_task(db, task_id=task_id, task_update=task_update)
+    logger.info(f"User '{user.username}' updated the task '{task.title}'.")
     if task is None:
         raise HTTPException(status_code=404, detail="Unsuccessful update.")
 
@@ -102,6 +118,7 @@ def create_task_for_user(
     user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
+    logger.info(f"User '{user.username}' created the task '{task.title}'.")
     return crud.create_task(db=db, task=task, user_id=user.id)
 
 
@@ -121,9 +138,11 @@ def delete_task(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_active_user)
 ):
+
     db_task = crud.get_task(db, task_id=task_id)
     if db_task:
         crud.remove_task(db, task_id=task_id)
+        logger.info(f"Task with title '{db_task.title}' was deleted.")
         return {"detail": "Task was deleted"}
     return HTTPException(
         status_code=400,
@@ -148,6 +167,7 @@ async def login_for_access_token(
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
+    logger.info(f"User '{user.username}', received access token to sign in.")
     return Token(access_token=access_token, token_type='bearer')
 
 
