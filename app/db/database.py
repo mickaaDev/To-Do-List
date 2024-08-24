@@ -6,16 +6,11 @@ from sqlmodel import create_engine, SQLModel, Session
 
 load_dotenv()
 
-SQLALCHEMY_DATABASE_URL = (
-    f"postgresql://postgres:{os.getenv('postgressql_password')}"
-    f"@{os.getenv('postgressql_server')}/todolist"
-)
-
+# Example of DATABASE_URI
+#DATABASE_URI=postgresql://<DB_USER>:<DB_PASSWORD>@<DB_HOST>:<DB_PORT>/<DB_NAME>
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL
+    os.getenv("DATABASE_URI")
 )
-
-# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 

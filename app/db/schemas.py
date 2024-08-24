@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from typing import Optional
 from datetime import datetime
 from sqlmodel import SQLModel, Field
 
@@ -21,7 +21,8 @@ class TaskCreate(SQLModel):
     owner_id: int
     title: str
     description: str
-    completed: bool | None = False
+    completed: Optional[bool] = False
+
 
 
 class UserBase(SQLModel):
@@ -36,8 +37,8 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
     username: str
-    full_name: str | None = None
-    disabled: bool | None = None
+    full_name: Optional[str] = None 
+    disabled: Optional[str] = None 
     tasks: list[Task] = []
 
     class Config:
@@ -50,4 +51,4 @@ class Token(SQLModel):
 
 
 class TokenData(SQLModel):
-    username: str | None = None
+    username: Optional[str] = None 
