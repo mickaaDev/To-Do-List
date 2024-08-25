@@ -7,7 +7,7 @@ from sqlmodel import create_engine, SQLModel, Session
 load_dotenv()
 
 # Example of DATABASE_URI
-#DATABASE_URI=postgresql://<DB_USER>:<DB_PASSWORD>@<DB_HOST>:<DB_PORT>/<DB_NAME>
+# DATABASE_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
 engine = create_engine(
     os.getenv("DATABASE_URI")
 )

@@ -9,9 +9,10 @@ SQLAlchemy ORM for database interactions
 Middleware for handling database sessions
 ## Installation
 Prerequisites
-Python 3.7 or higher
+Docker and Docker Compose
+Python 3.7 or higher (only if running locally without Docker)
 SQLite (or another database of your choice)
-Virtual environment (recommended)
+Virtual environment (recommended for local development)
 ## Setup
 ## Clone the repository:
 
@@ -20,26 +21,27 @@ git clone https://github.com/mickaaDev/To-Do-List.git
 cd <repository-directory>
 ```
 
-## Create and activate a virtual environment:
+## Set up the environment variables:
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+cp .env.example .env
 ```
 
-## Install dependencies:
+Edit the .env file and fill in your specific values:
 
 ```bash
-pip install -r requirements.txt
+POSTGRES_USER=your_db_user
+POSTGRES_PASSWORD=your_db_password
+POSTGRES_DB=your_db_name
 ```
-## Run database migrations (if any):
 
-For SQLite, the database file will be created automatically.
-## Start the application:
+## Start the application using Docker Compose:
 
 ```bash
-uvicorn api.main:app --reload
+docker-compose up --build
 ```
+This will build the Docker images and start the application along with the necessary services like the PostgreSQL database.
+
 ## Access the API documentation:
 
 Open your browser and go to http://127.0.0.1:8000/docs for the Swagger UI or http://127.0.0.1:8000/redoc for ReDoc.
