@@ -5,7 +5,7 @@ services:
     image: postgres:14
     networks:
       - my_network
-    container_name: postgres-db
+    container_name: postgres_v1-db
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_DB: ${POSTGRES_DB}
@@ -25,11 +25,13 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-    container_name: my-todo-container_v1
+    container_name: my-todo-container_v2
     ports:
       - "8000:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+        restart: true
     volumes:
       - .:/usr/src/app
     command: 'uvicorn app.api.main:app --host 0.0.0.0 --port 8000 --reload'
